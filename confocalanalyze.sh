@@ -5,6 +5,8 @@
 # $1 is resolution, $2 is input folder, $3 is output folder, $4 is start plate, $5 is start well, $6 is end plate, $7 is remote host path.
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+input_path="$( cd "${2}" && pwd )"
+output_path="$( cd "${3}" && pwd )"
 well=$5
 start_letter=${well:0:1}
 well_number=${well#?}
@@ -13,7 +15,8 @@ echo $well_number
 #Make for loop, runs for specified plates ($plate) and wells ($well), from $4 and $5 to $6.
 for (( plate=${4}; plate<=${6}; plate++ ))
 do
-    mkdir -p $2/$plate
+    mkdir -p $input_path/$plate
+    mkdir -p $output_path/$plate
     well_letters="ABCDEFGH"
     well_letters="${well_letters/*$start_letter/$start_letter}"
 
@@ -27,12 +30,12 @@ do
             
 
             rsync -rav --include '*/' --include="$plate"_"$well*.tif.gz" --exclude='*' \
-            $7/$plate/ $2/$plate
+            $7/$plate/ $input_path/$plate
 
             arr=( $(find $2/$plate -type f | sort) )
             echo ${#arr[@]} #testing
 
-            # While loop, runs as long as there are files left in ../$2/$plate
+            # While loop, runs as long as there are files left in ../$input_path/$plate
             while [ ${#arr[@]} -ge 1 ]
             do
 
@@ -48,12 +51,12 @@ do
                 mkdir -p $dir/tmp/siIn/in
                 mkdir -p $dir/tmp/siOut
         
-                gunzip -d $2/$plate/$fov_name*.gz
+                gunzip -d $input_path/$plate/$fov_name*.gz
                 
-                ln -s -t $dir/tmp/siIn/in $2/$plate/$fov_name"blue.tif"
-                ln -s -t $dir/tmp/siIn/in $2/$plate/$fov_name"green.tif"
-                ln -s -t $dir/tmp/siIn/in $2/$plate/$fov_name"red.tif"
-                ln -s -t $dir/tmp/siIn/in $2/$plate/$fov_name"yellow.tif"
+                ln -s -t $dir/tmp/siIn/in $input_path/$plate/$fov_name"blue.tif"
+                ln -s -t $dir/tmp/siIn/in $input_path/$plate/$fov_name"green.tif"
+                ln -s -t $dir/tmp/siIn/in $input_path/$plate/$fov_name"red.tif"
+                ln -s -t $dir/tmp/siIn/in $input_path/$plate/$fov_name"yellow.tif"
 
                 echo $dir/tmp/siIn/in #testing
 
@@ -81,18 +84,18 @@ do
 
                 if [ "$images_exist" == "1" ]
                 then
-                    mv ./tmp/siOut/segmentation.png $3/$plate/$fov_name"segmentation.png"
+                    mv ./tmp/siOut/segmentation.png $output_path/$plate/$fov_name"segmentation.png"
 
                     if [ -f $dir/tmp/siOut/features.csv ];
                     then
-                    	mv $dir/tmp/siOut/features.csv $3/$plate/$fov_name"features.csv"
+                    	mv $dir/tmp/siOut/features.csv $output_path/$plate/$fov_name"features.csv"
                     else
                     	exit 1 #temporary testing without exit
                     fi
                 fi
 
-                rm -f $2/$plate/$fov_name*
-                arr=( $(find $2/$plate -type f) )
+                rm -f $input_path/$plate/$fov_name*
+                arr=( $(find $input_path/$plate -type f) )
                 echo ${#arr[@]} #testing
             done
         done
