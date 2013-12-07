@@ -20,20 +20,21 @@ echo $well_number
 
 # for loop, runs for specified plates ($plate)
 # and wells ($well), from $4 and $5 to $6.
-for (( plate=${4}; plate<=${6}; plate++ ))
-do
+for (( plate=${4}; plate<=${6}; plate++ )); do
     mkdir -p $input_path/$plate
     mkdir -p $output_path/$plate
     well_letters="ABCDEFGH"
     well_letters="${well_letters/*$start_letter/$start_letter}"
 
+    # While loop, to go through the rows of the wells, A-H
     while test -n "$well_letters"; do
         # get the first character in well_letters
         well_letter=${well_letters:0:1}
         # trim the first character in well_letters
         well_letters=${well_letters:1}
-        for (( ${well_number}; well_number<=12; well_number++ )) 
-        do
+        
+        # for loop, to go throuhg the columns of the wells, 1-12
+        for (( ${well_number}; well_number<=12; well_number++ )); do
             well="$well_letter$well_number"
 
             rsync -rav --include '*/' --include="$plate"_"$well*.tif.gz" \
@@ -44,8 +45,7 @@ do
 
             # While loop, runs as long as there are files left
             # in ../$input_path/$plate
-            while [ ${#arr[@]} -ge 1 ]
-            do
+            while [ ${#arr[@]} -ge 1 ]; do
 
                 # Find fov_name
                 fullfile="${arr[0]}"
@@ -84,35 +84,34 @@ do
                         images_exist=1
                     fi
                 done
-
-                if [ "$1" == "10" ] && [ "$images_exist" == "1" ]
-                then
+                
+                # Run matlab
+                if [ "$1" == "10" ] && [ "$images_exist" == "1" ]; then
                 	matlab -nodisplay -nodesktop -nojvm -nosplash -r \
                 	"cd $dir/features; [arr exit_status] = process_10x(\
                 	'$dir/tmp/siIn','$dir/tmp/siOut'); exit(exit_status);"
-                elif [ "$images_exist" == "1" ]
-                then
+                elif [ "$images_exist" == "1" ]; then
                 	matlab -nodisplay -nodesktop -nosplash -r \
                 	"cd $dir/features; [arr exit_status] = process_63x(\
                 	'$dir/tmp/siIn','$dir/tmp/siOut',$1); exit(exit_status);"
                 else
                     echo "no images to process"
                 fi
-
-                if [ "$images_exist" == "1" ]
-                then
+                
+                # Move output files
+                if [ "$images_exist" == "1" ]; then
                     mv ./tmp/siOut/segmentation.png \
                     $output_path/$plate/$fov_name"segmentation.png"
 
-                    if [ -f $dir/tmp/siOut/features.csv ];
-                    then
+                    if [ -f $dir/tmp/siOut/features.csv ]; then
                     	mv $dir/tmp/siOut/features.csv \
                     	$output_path/$plate/$fov_name"features.csv"
                     else
-                    	exit 1 #temporary testing without exit
+                    	exit 1
                     fi
                 fi
 
+                # Remove finished input files
                 rm -f $input_path/$plate/$fov_name*
                 arr=( $(find $input_path/$plate -type f) )
                 echo ${#arr[@]} #testing
