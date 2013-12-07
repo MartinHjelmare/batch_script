@@ -6,8 +6,10 @@
 
 # At Uppmax:
 # Save incoming images in $HOME/glob (250 GB quota).
-# Create image links and temporary files in path that $SNIC_TMP variable is pointing at, equal to path /scratch/$SLURM_JOB_ID .
-# Make sure you create $HOME/glob/feature_extract/incoming/ and $HOME/glob/feature_extract/output before running this script.
+# Create image links and temporary files at $SNIC_TMP,
+# equal to path /scratch/$SLURM_JOB_ID .
+# Make sure you create $HOME/glob/feature_extract/incoming/
+# and $HOME/glob/feature_extract/output before running this script.
 
 module load matlab #Load module matlab
 
@@ -16,12 +18,21 @@ cp $HOME/glob/feature_extract/confocal_feature.zip $SNIC_TMP/feature_extract/
 cd $SNIC_TMP/feature_extract/
 unzip feature_extract.zip
 
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
-./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
+./confocalanalyze.sh 63 $HOME/glob/feature_extract/incoming/ \
+$HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
 wait
+rm -rf $SNIC_TMP/feature_extract/
