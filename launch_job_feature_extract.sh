@@ -3,6 +3,7 @@
 #SBATCH -p node -n 8
 #SBATCH -t 2-00:00:00
 #SBATCH -J feature_extract_1-32
+#SBATCH --mail-type=ALL
 
 # At Uppmax:
 # Save incoming images in $HOME/glob (250 GB quota).
@@ -14,7 +15,7 @@
 module load matlab #Load module matlab
 
 mkdir $SNIC_TMP/feature_extract/
-cp $HOME/glob/feature_extract/confocal_feature.zip $SNIC_TMP/feature_extract/
+cp $HOME/glob/feature_extract/feature_extract.zip $SNIC_TMP/feature_extract/
 cd $SNIC_TMP/feature_extract/
 unzip feature_extract.zip
 
@@ -36,3 +37,4 @@ $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
 $HOME/glob/feature_extract/output plate_start well_start plate_end remote_host &
 wait
 rm -rf $SNIC_TMP/feature_extract/
+echo "Job finished successfully!"
