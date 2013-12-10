@@ -16,7 +16,7 @@ output_path="$( cd "${3}" && pwd )"
 well=$5
 start_letter=${well:0:1}
 well_number=${well#?}
-echo $well_number
+echo $well_number #testing
 
 # for loop, runs for specified plates ($plate)
 # and wells ($well), from $4 and $5 to $6.
