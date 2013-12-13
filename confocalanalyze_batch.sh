@@ -108,23 +108,25 @@ while read line; do
                 echo "no images to process"
             fi
         
-            # Move output files
-            if [ "$images_exist" == "1" ]; then
-                mv ./tmp/$plate/siOut/segmentation.png \
-                $output_path/$plate/$fov_name"segmentation.png"
+            # Move output and input files
+            mv ./tmp/$plate/siOut/segmentation.png \
+            $output_path/$plate/$fov_name"segmentation.png"
 
-                if [ -f $dir/tmp/$plate/siOut/features.csv ]; then
-                   	mv $dir/tmp/$plate/siOut/features.csv \
-                   	$output_path/$plate/$fov_name"features.csv"
-                else
-                    exit 1
-                fi
+            if [ -f $dir/tmp/$plate/siOut/features.csv ]; then
+                mv $dir/tmp/$plate/siOut/features.csv \
+               	$output_path/$plate/$fov_name"features.csv"
+                # Compress & move finished input files
+                gzip $input_path/images/$plate/$fov_name*
+                mv $input_path/images/$plate/$fov_name* \
+                $input_path/done/$plate
+            else
+                echo "No feature output file, even though images exist."
+                gzip $input_path/images/$plate/$fov_name*
+                mkdir -p $input_path/wrong/$plate
+                mv $input_path/images/$plate/$fov_name* \
+                $input_path/wrong/$plate
             fi
-
-            # Compress & move finished input files
-            gzip $input_path/images/$plate/$fov_name*
-            mv $input_path/images/$plate/$fov_name* \
-            $input_path/done/$plate
+            
             arr=( $(find $input_path/images/$plate/*.tif* -type f | sort) )
             echo ${#arr[@]} #testing
         done
