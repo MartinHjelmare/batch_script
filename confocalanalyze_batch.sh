@@ -23,7 +23,7 @@ line_number=1
 while read line; do
     echo "Line # $line_number: $line"
         
-    while [ $line_number -ge $start_line ] && [ $line_number -le $end_line ]; do
+    if [ $line_number -ge $start_line ] && [ $line_number -le $end_line ]; then
         plate=$line
         
 
@@ -121,12 +121,13 @@ while read line; do
                 fi
             fi
 
-            # Move finished input files
+            # Compress & move finished input files
+            gzip $input_path/images/$plate/$fov_name*
             mv $input_path/images/$plate/$fov_name* \
             $input_path/done/$plate
             arr=( $(find $input_path/images/$plate/*.tif* -type f | sort) )
             echo ${#arr[@]} #testing
         done
-    done
+    fi
     ((line_number++))
 done < $FILE
