@@ -111,17 +111,17 @@ while read line; do
             # Move output and input files
             mv ./tmp/$plate/siOut/segmentation.png \
             $output_path/$plate/$fov_name"segmentation.png"
+            # Compress finished input files
+            gzip $input_path/images/$plate/$fov_name*
 
             if [ -f $dir/tmp/$plate/siOut/features.csv ]; then
                 mv $dir/tmp/$plate/siOut/features.csv \
                	$output_path/$plate/$fov_name"features.csv"
-                # Compress & move finished input files
-                gzip $input_path/images/$plate/$fov_name*
                 mv $input_path/images/$plate/$fov_name* \
                 $input_path/done/$plate
             else
                 echo "No feature output file, even though images exist."
-                gzip $input_path/images/$plate/$fov_name*
+                
                 mkdir -p $input_path/wrong/$plate
                 mv $input_path/images/$plate/$fov_name* \
                 $input_path/wrong/$plate
