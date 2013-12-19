@@ -47,9 +47,6 @@ while read line; do
             fov_name="${filename%"${fileend}"}"
         
             gunzip -d $input_path/images/$plate/$fov_name*.gz
-        
-            arr2=( $(find $input_path/images/$plate/$fov_name*.tif -type f \
-            | sort) )
 
             rm -rf $dir/tmp/$plate/siIn
             rm -rf $dir/tmp/$plate/siOut
@@ -63,8 +60,7 @@ while read line; do
             # Else check if those images are named *blue*,
             # if so make link to blue, green, red, yellow.
             # Else exit 1
-            fullfile="${arr2[0]}"
-            if [ "${fullfile##*_}" == "ch00.tif" ]; then
+            if [ "${fov_name##*_z}" == "0_" ]; then
                 ln -s $input_path/images/$plate/$fov_name"ch01.tif" \
                 $dir/tmp/$plate/siIn/in/$fov_name"blue.tif"
                 ln -s $input_path/images/$plate/$fov_name"ch00.tif" \
@@ -74,12 +70,17 @@ while read line; do
                 ln -s $input_path/images/$plate/$fov_name"ch02.tif" \
                 $dir/tmp/$plate/siIn/in/$fov_name"yellow.tif"
                 fov_name="${fov_name%z0_}"
-            elif [ "${fullfile##*_}" == "blue.tif" ]; then
+            else
                 ln -s -t $dir/tmp/$plate/siIn/in \
                 $input_path/images/$plate/$fov_name*.tif
-            else
-                echo "image name is wrong"
-                exit 1
+                ln -s $input_path/images/$plate/$fov_name"blue.tif" \
+                $dir/tmp/$plate/siIn/in/$fov_name"blue.tif"
+                ln -s $input_path/images/$plate/$fov_name"green.tif" \
+                $dir/tmp/$plate/siIn/in/$fov_name"green.tif"
+                ln -s $input_path/images/$plate/$fov_name"red.tif" \
+                $dir/tmp/$plate/siIn/in/$fov_name"red.tif"
+                ln -s $input_path/images/$plate/$fov_name"yellow.tif" \
+                $dir/tmp/$plate/siIn/in/$fov_name"yellow.tif"
             fi
 
             # Check to make sure the links to four different color images
@@ -89,6 +90,7 @@ while read line; do
             for link in $links; do
                 if [ ! -e $link ] ; then
                     images_exist=0
+                    echo "Not all four images exist!"
                     break
                 else
                     images_exist=1
@@ -120,7 +122,7 @@ while read line; do
                 mv $input_path/images/$plate/$fov_name* \
                 $input_path/done/$plate
             else
-                echo "No feature output file, even though images exist."
+                echo "No feature output file."
                 
                 mkdir -p $input_path/wrong/$plate
                 mv $input_path/images/$plate/$fov_name* \
