@@ -19,7 +19,9 @@ echo ${#arr[@]} #testing
 if [ ${#arr[@]} -ge 1 ]; then
     #find top directory in input_path
     #mkdir -p $output_path/topDir
-    mkdir -p $input_path/done/
+    cd $input_path
+    mkdir -p ../done/
+    done_path="$( cd ../done/ && pwd )"
 fi
 
 # While loop, runs as long as there are files left in $input_path/
@@ -29,15 +31,13 @@ while [ ${#arr[@]} -ge 1 ]; do
     fullfile="${arr[0]}"
     filename="${fullfile##*/}"
     file_path="${fullfile%%"${filename}"}"
-    file_path="$( cd "${file_dir}" && pwd )"
+    file_path="$( cd "${file_path}" && pwd )"
     fileend="${fullfile##*--}"
     fov_name="${filename%"${fileend}"}"
     
     echo $file_path #testing
     
-    gunzip -d $file_path/$fov_name*.gz
-    
-    arr2=( $(find $file_path/$fov_name*.tif -type f | sort) )
+    #gunzip -d $file_path/$fov_name*.gz
 
     rm -rf $dir/tmp/siIn
     rm -rf $dir/tmp/siOut
@@ -46,11 +46,9 @@ while [ ${#arr[@]} -ge 1 ]; do
     
     # Check if those images are named *C00.ome.tif,
     # *C01.ome.tif, *C02.ome.tif, *C03.ome.tif,
-    # if so change images field names to exclude Z00--
     # and link C00 to green, C01 to blue, C02 to yellow, C03 to red.
-    # Else check if those images are named *blue*,
-    # if so make link to blue, green, red, yellow.
-    # Else exit 1
+    # Else make link to blue, green, red, yellow.
+    arr2=( $(find $file_path -name "$fov_name*" | sort) )
     fullfile="${arr2[0]}"
     if [ "${fullfile##*--}" == "C00.ome.tif" ]; then
         ln -s $file_path/$fov_name"C01.ome.tif" \
@@ -62,12 +60,15 @@ while [ ${#arr[@]} -ge 1 ]; do
         ln -s $file_path/$fov_name"C02.ome.tif" \
         $dir/tmp/$plate/siIn/in/$fov_name"yellow.tif"
         #fov_name="${fov_name%Z00--}" # To remove Z00-- from $fov_name
-    elif [ "${fullfile##*--}" == "blue.tif" ]; then
-        ln -s -t $dir/tmp/siIn/in \
-        $file_path/$fov_name*.tif
     else
-        echo "image name is wrong"
-        exit 1
+        ln -s $file_path/$fov_name"blue.tif" \
+        $dir/tmp/$plate/siIn/in/$fov_name"blue.tif"
+        ln -s $file_path/$fov_name"green.tif" \
+        $dir/tmp/$plate/siIn/in/$fov_name"green.tif"
+        ln -s $file_path/$fov_name"red.tif" \
+        $dir/tmp/$plate/siIn/in/$fov_name"red.tif"
+        ln -s $file_path/$fov_name"yellow.tif" \
+        $dir/tmp/$plate/siIn/in/$fov_name"yellow.tif"
     fi
 
     # Check to make sure the links to four different color images
@@ -106,12 +107,14 @@ while [ ${#arr[@]} -ge 1 ]; do
         mv $dir/tmp/siOut/features.csv \
        	$output_path/$fov_name"features.csv"
         mv $file_path/$fov_name* \
-        $input_path/done #add topDir before done
+        $done_path #add topDir after done
     else
-        echo "No feature output file, even though images exist."
-        mkdir -p $input_path/wrong/
+        echo "No feature output file."
+        cd $input_path
+        mkdir -p ../wrong/
+        wrong_path="$( cd ../wrong/ && pwd )"
         mv $file_path/$fov_name* \
-        $input_path/wrong #add topDir before wrong
+        $wrong_path #add topDir after wrong
     fi
     
     arr=( $(find $input_path -name "*C01.ome.tif" | sort) )
